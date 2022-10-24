@@ -22,6 +22,7 @@ from homeassistant.const import (
     ENERGY_WATT_HOUR,
     VOLUME_CUBIC_FEET,
     VOLUME_CUBIC_METERS,
+    VOLUME_GALLONS,
 )
 from homeassistant.core import (
     HomeAssistant,
@@ -46,6 +47,7 @@ SUPPORTED_STATE_CLASSES = [
 ]
 VALID_ENERGY_UNITS = [ENERGY_WATT_HOUR, ENERGY_KILO_WATT_HOUR, ENERGY_MEGA_WATT_HOUR]
 VALID_ENERGY_UNITS_GAS = [VOLUME_CUBIC_FEET, VOLUME_CUBIC_METERS] + VALID_ENERGY_UNITS
+VALID_VOLUME_UNITS_WATER = [VOLUME_CUBIC_FEET, VOLUME_CUBIC_METERS, VOLUME_GALLONS]
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -64,7 +66,7 @@ async def async_setup_platform(
 class SourceAdapter:
     """Adapter to allow sources and their flows to be used as sensors."""
 
-    source_type: Literal["grid", "gas"]
+    source_type: Literal["grid", "gas", "water"]
     flow_type: Literal["flow_from", "flow_to", None]
     stat_energy_key: Literal["stat_energy_from", "stat_energy_to"]
     total_money_key: Literal["stat_cost", "stat_compensation"]
@@ -91,6 +93,14 @@ SOURCE_ADAPTERS: Final = (
     ),
     SourceAdapter(
         "gas",
+        None,
+        "stat_energy_from",
+        "stat_cost",
+        "Cost",
+        "cost",
+    ),
+    SourceAdapter(
+        "water",
         None,
         "stat_energy_from",
         "stat_cost",
@@ -233,7 +243,7 @@ class EnergyCostSensor(SensorEntity):
         self.async_write_ha_state()
 
     @callback
-    def _update_cost(self) -> None:
+    def _update_cost(self) -> None:  # noqa: C901
         """Update incurred costs."""
         energy_state = self.hass.states.get(
             cast(str, self._config[self._adapter.stat_energy_key])
@@ -306,6 +316,10 @@ class EnergyCostSensor(SensorEntity):
 
         elif self._adapter.source_type == "gas":
             if energy_unit not in VALID_ENERGY_UNITS_GAS:
+                energy_unit = None
+
+        elif self._adapter.source_type == "water":
+            if energy_unit not in VALID_VOLUME_UNITS_WATER:
                 energy_unit = None
 
         if energy_unit == ENERGY_WATT_HOUR:
