@@ -1,0 +1,32 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Device is already configured"
+        },
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "unknown": "Unexpected error"
+        },
+        "step": {
+            "user": {
+                "title": "Breagle Bluetooth",
+                "description": "Control a Breagle bluetooth tvlift. Select to scan for devices or enter the mac Address manually.",
+                "data": {
+                  "entry_method": "Method to be used:"
+                }
+              },
+              "scan": {
+                "title": "Breagle Bluetooth",
+                "description": "Make sure the tvlift is not connected to other devices or it may not be discoverable (A reset may also help).  Are you ready to start scanning?"
+              },
+              "device": {
+                "title": "Breagle Bluetooth",
+                "description": "Enter a name for the device and the MAC address for the tvlift.",
+                "data": {
+                  "name": "Lift name",
+                  "mac": "MAC address"
+                }
+              }
+        }
+    }
+}
